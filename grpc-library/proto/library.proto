@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package library;
+
+service LibraryService {
+  // Books
+  rpc GetBooks (GetBooksRequest) returns (GetBooksResponse);
+  rpc GetBook (GetBookRequest) returns (Book);
+  rpc CreateBook (CreateBookRequest) returns (Book);
+  rpc UpdateBook (UpdateBookRequest) returns (Book);
+  rpc DeleteBook (DeleteBookRequest) returns (DeleteBookResponse);
+
+  // Authors
+  rpc GetAuthors (GetAuthorsRequest) returns (GetAuthorsResponse);
+  rpc GetAuthor (GetAuthorRequest) returns (Author);
+  rpc CreateAuthor (CreateAuthorRequest) returns (Author);
+
+  // Borrowings
+  rpc CreateBorrowing (CreateBorrowingRequest) returns (Borrowing);
+  rpc ReturnBook (ReturnBookRequest) returns (Borrowing);
+}
+
+message Book {
+  string id = 1;
+  string title = 2;
+  string author = 3;
+  string isbn = 4;
+  string status = 5;
+}
+
+message Author {
+  string id = 1;
+  string name = 2;
+  string nationality = 3;
+  int32 birthYear = 4;
+}
+
+message Borrowing {
+  string id = 1;
+  string bookId = 2;
+  string userId = 3;
+  string borrowDate = 4;
+  string dueDate = 5;
+  string returnDate = 6;
+  string status = 7;
+}
+
+message GetBooksRequest {
+  string titleFilter = 1;
+  string authorFilter = 2;
+  string statusFilter = 3;
+  int32 page = 4;
+  int32 limit = 5;
+  string sortBy = 6;
+}
+
+message GetBooksResponse {
+  repeated Book books = 1;
+  int32 totalCount = 2;
+}
+
+message GetBookRequest {
+  string id = 1;
+}
+
+message CreateBookRequest {
+  string title = 1;
+  string author = 2;
+  string isbn = 3;
+}
+
+message UpdateBookRequest {
+  string id = 1;
+  string title = 2;
+  string author = 3;
+  string isbn = 4;
+}
+
+message DeleteBookRequest {
+  string id = 1;
+}
+
+message DeleteBookResponse {
+  bool success = 1;
+}
+
+message GetAuthorsRequest {}
+
+message GetAuthorsResponse {
+  repeated Author authors = 1;
+}
+
+message GetAuthorRequest {
+  string id = 1;
+}
+
+message CreateAuthorRequest {
+  string name = 1;
+  string nationality = 2;
+  int32 birthYear = 3;
+}
+
+message CreateBorrowingRequest {
+  string bookId = 1;
+  string userId = 2;
+}
+
+message ReturnBookRequest {
+  string borrowingId = 1;
+} 

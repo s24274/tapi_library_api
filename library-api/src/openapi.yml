@@ -1,0 +1,282 @@
+# OpenAPI specification for Library Management System
+# Version: 1.0.0
+# This document describes the REST API endpoints for managing books, authors, users and borrowings
+openapi: 3.0.0
+
+# Basic information about the API
+info:
+  title: Library API
+  version: 1.0.0
+  description: >
+    A comprehensive API for managing a library system. Provides functionality for 
+    managing books, authors, users, and borrowings. Supports HATEOAS, pagination, 
+    and filtering.
+  contact:
+    name: Library API Support
+    email: support@library-api.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+# Available servers for the API
+servers:
+  - url: http://localhost:3000
+    description: Development server
+
+# API endpoints grouping
+tags:
+  - name: Books
+    description: Operations about books including CRUD operations and availability management
+  - name: Authors
+    description: Everything about authors and their works
+  - name: Users
+    description: User management and profile operations
+  - name: Borrowings
+    description: Book borrowing operations including checkout and returns
+
+# All API paths (endpoints)
+paths:
+  # Books endpoints
+  /api/books:
+    get:
+      tags:
+        - Books
+      summary: Get list of books
+      description: Returns a paginated list of books with optional filtering and sorting
+      parameters:
+        # Query parameters for filtering
+        - in: query
+          name: title
+          schema:
+            type: string
+          description: Filter books by title (case-insensitive)
+        - in: query
+          name: author
+          schema:
+            type: string
+          description: Filter books by author name (case-insensitive)
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [available, borrowed]
+          description: Filter books by their current status
+        # Pagination parameters
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number for pagination (starts from 1)
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Number of items to return per page
+      responses:
+        '200':
+          description: Successfully retrieved list of books
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookList'
+    
+    post:
+      tags:
+        - Books
+      summary: Create a new book
+      description: Add a new book to the library system
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookInput'
+      responses:
+        '201':
+          description: Book successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/books/{id}:
+    get:
+      tags:
+        - Books
+      summary: Get a book by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Book details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+# Component definitions
+components:
+  schemas:
+    # Book-related schemas
+    Book:
+      type: object
+      description: Represents a book in the library system with all its details
+      properties:
+        _id:
+          type: string
+          description: Unique identifier for the book (MongoDB ObjectId)
+        title:
+          type: string
+          description: The title of the book
+        author:
+          type: string
+          description: The name of the book's author
+        isbn:
+          type: string
+          description: International Standard Book Number (unique identifier)
+        status:
+          type: string
+          enum: [available, borrowed]
+          description: Current availability status of the book
+      example:
+        _id: "507f1f77bcf86cd799439011"
+        title: "The Lord of the Rings"
+        author: "J.R.R. Tolkien"
+        isbn: "978-0618640157"
+        status: "available"
+
+    # Input schemas for creating new resources
+    BookInput:
+      type: object
+      description: Data required to create a new book
+      required: [title, author, isbn]
+      properties:
+        title:
+          type: string
+          description: Book title
+        author:
+          type: string
+          description: Author's name
+        isbn:
+          type: string
+          description: ISBN (must be unique)
+
+    # Response schemas
+    BookList:
+      type: object
+      description: Paginated list of books with HATEOAS links
+      properties:
+        _embedded:
+          type: object
+          properties:
+            books:
+              type: array
+              items:
+                $ref: '#/components/schemas/Book'
+        _links:
+          $ref: '#/components/schemas/PaginationLinks'
+        page:
+          $ref: '#/components/schemas/PageInfo'
+
+    # Utility schemas
+    PaginationLinks:
+      type: object
+      description: HATEOAS links for pagination navigation
+      properties:
+        self:
+          $ref: '#/components/schemas/Link'
+        first:
+          $ref: '#/components/schemas/Link'
+        prev:
+          $ref: '#/components/schemas/Link'
+        next:
+          $ref: '#/components/schemas/Link'
+        last:
+          $ref: '#/components/schemas/Link'
+
+    Link:
+      type: object
+      description: HATEOAS link with optional HTTP method
+      properties:
+        href:
+          type: string
+          description: URL for the link
+        method:
+          type: string
+          enum: [GET, POST, PUT, DELETE]
+          description: HTTP method to use with this link
+
+    PageInfo:
+      type: object
+      description: Information about the current page and total results
+      properties:
+        size:
+          type: integer
+          description: Number of items per page
+          example: 10
+        totalElements:
+          type: integer
+          description: Total number of items across all pages
+          example: 100
+        totalPages:
+          type: integer
+          description: Total number of pages available
+          example: 10
+        number:
+          type: integer
+          description: Current page number (1-based)
+          example: 1
+
+    Error:
+      type: object
+      description: Standard error response format
+      properties:
+        error:
+          type: string
+          description: Type of error that occurred
+        message:
+          type: string
+          description: Detailed error message
+      example:
+        error: "ValidationError"
+        message: "ISBN is required"
+
+    Author:
+      type: object
+      description: Represents an author
+      properties:
+        _id:
+          type: string
+          description: Unique identifier
+        name:
+          type: string
+          description: Full name
+        nationality:
+          type: string
+          description: Author's nationality
+        birthYear:
+          type: integer
+          description: Year of birth
+      example:
+        _id: "507f1f77bcf86cd799439012"
+        name: "J.R.R. Tolkien"
+        nationality: "British"
+        birthYear: 1892 
