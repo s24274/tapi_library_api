@@ -159,29 +159,29 @@ router.get('/', async (req, res) => {
       filter.status = req.query.status;
     }
 
-    // Paginacja
+    // Pagination
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    // Sortowanie
+    // Sort
     const sort = {};
     if (req.query.sortBy) {
       const parts = req.query.sortBy.split(':');
       sort[parts[0]] = parts[1] === 'desc' ? -1 : 1;
     }
 
-    // Pobierz całkowitą liczbę dokumentów (dla paginacji)
+    // Get total number of books
     const total = await Book.countDocuments(filter);
     const totalPages = Math.ceil(total / limit);
 
-    // Pobierz książki
+    // Get books
     const books = await Book.find(filter)
       .sort(sort)
       .skip(skip)
       .limit(limit);
 
-    // Przygotuj linki do paginacji
+    // pagation prepare
     const paginationLinks = {
       self: { href: `/api/books?page=${page}&limit=${limit}` }
     };
