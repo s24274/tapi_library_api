@@ -94,7 +94,7 @@ const resolvers = {
     }
   },
 
-  // Resolwery dla pól złożonych
+  // Resolvers
   Book: {
     borrowings: async (book) => await Borrowing.find({ book: book._id })
   },

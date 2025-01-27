@@ -3,7 +3,7 @@ const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
 const { MongoClient, ObjectId } = require('mongodb');
 
-// Załaduj plik .proto
+//  .proto file
 const PROTO_PATH = path.resolve(__dirname, '../proto/library.proto');
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   keepCase: true,
@@ -21,7 +21,7 @@ const MONGO_URI = 'mongodb://localhost:27017';
 const DB_NAME = 'library';
 let db;
 
-// Implementacja serwisów
+// server implement 
 const server = new grpc.Server();
 
 server.addService(libraryProto.LibraryService.service, {
@@ -72,7 +72,7 @@ server.addService(libraryProto.LibraryService.service, {
 
   async createBook(call, callback) {
     try {
-      // Sprawdź czy książka o takim ISBN już istnieje
+      // isbn exists?
       const existingBook = await db.collection('books').findOne({ 
         isbn: call.request.isbn 
       });
@@ -144,7 +144,7 @@ server.addService(libraryProto.LibraryService.service, {
     try {
       const { bookId, userId } = call.request;
       
-      // Sprawdź czy książka jest dostępna
+      // books available?
       const book = await db.collection('books').findOne({ 
         _id: new ObjectId(bookId) 
       });
@@ -152,7 +152,7 @@ server.addService(libraryProto.LibraryService.service, {
         throw new Error('Book is not available');
       }
 
-      // Stwórz wypożyczenie
+      // borrowing created
       const borrowing = {
         bookId: new ObjectId(bookId),
         userId: new ObjectId(userId),
@@ -163,7 +163,7 @@ server.addService(libraryProto.LibraryService.service, {
 
       const result = await db.collection('borrowings').insertOne(borrowing);
       
-      // Zaktualizuj status książki
+      // update book status
       await db.collection('books').updateOne(
         { _id: new ObjectId(bookId) },
         { $set: { status: 'borrowed' } }
@@ -190,7 +190,7 @@ server.addService(libraryProto.LibraryService.service, {
         throw new Error('Invalid borrowing');
       }
 
-      // Zaktualizuj wypożyczenie
+      // update borrowing status
       const updatedBorrowing = await db.collection('borrowings').findOneAndUpdate(
         { _id: new ObjectId(call.request.borrowingId) },
         { 
@@ -202,7 +202,7 @@ server.addService(libraryProto.LibraryService.service, {
         { returnDocument: 'after' }
       );
 
-      // Zaktualizuj status książki
+      // update book status
       await db.collection('books').updateOne(
         { _id: borrowing.bookId },
         { $set: { status: 'available' } }

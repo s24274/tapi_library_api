@@ -19,7 +19,7 @@ const client = new LibraryService(
   grpc.credentials.createInsecure()
 );
 
-// Przykłady użycia klienta
+// test client
 async function testClient() {
   // Dodaj książkę
   client.createBook({
@@ -34,7 +34,7 @@ async function testClient() {
     console.log('Book created:', book);
   });
 
-  // Pobierz książki
+  // get books
   client.getBooks({
     page: 1,
     limit: 10
@@ -49,7 +49,7 @@ async function testClient() {
 }
 
 async function testAllOperations() {
-  // 1. Stwórz książkę
+  // 1. create book
   console.log('=== Test 1: Create Book ===');
   client.createBook({
     title: "Wiedźmin",
@@ -57,14 +57,14 @@ async function testAllOperations() {
     isbn: "978-8375780636"
   }, logResponse('Create Book'));
 
-  // 2. Pobierz listę książek
+  // 2. get books
   console.log('\n=== Test 2: Get Books ===');
   client.getBooks({
     page: 1,
     limit: 10
   }, logResponse('Get Books'));
 
-  // 3. Wyszukaj książki z filtrem
+  // 3.search books (filter by title)
   console.log('\n=== Test 3: Search Books ===');
   client.getBooks({
     titleFilter: "Wiedźmin",
@@ -72,7 +72,7 @@ async function testAllOperations() {
     limit: 10
   }, logResponse('Search Books'));
 
-  // 4. Stwórz autora
+  // 4. create autor
   console.log('\n=== Test 4: Create Author ===');
   client.createAuthor({
     name: "Andrzej Sapkowski",
@@ -80,7 +80,7 @@ async function testAllOperations() {
     birthYear: 1948
   }, logResponse('Create Author'));
 
-  // 5. Pobierz autorów
+  // 5. get authors
   console.log('\n=== Test 5: Get Authors ===');
   client.getAuthors({}, logResponse('Get Authors'));
 }
@@ -95,5 +95,5 @@ function logResponse(operation) {
   };
 }
 
-// Uruchom testy
+//start test
 testAllOperations(); 

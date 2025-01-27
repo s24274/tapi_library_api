@@ -15,7 +15,7 @@ const port = process.env.PORT || 3000;
 const swaggerDocument = require('./openapi.json');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Połączenie z MongoDB
+// MongoDB connection
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/library')
   .then(() => console.log('MongoDB Connected'))
   .catch(err => console.error('MongoDB connection error:', err));
@@ -23,7 +23,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/library')
 app.use(cors());
 app.use(express.json());
 
-// Routery dla REST API
+// Routers for REST API
 const booksRouter = require('./routes/books');
 const authorsRouter = require('./routes/authors');
 const usersRouter = require('./routes/users');
@@ -49,12 +49,12 @@ const setupApollo = async () => {
   );
 };
 
-// Inicjalizacja GraphQL
+// Init GraphQL
 setupApollo().then(() => {
   console.log('GraphQL server ready at /graphql');
 });
 
-// Podstawowy endpoint REST
+// basic endpoint REST
 app.get('/', (req, res) => {
   res.json({
     message: 'Library API',
@@ -75,7 +75,7 @@ app.use('/api/authors', authorsRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/borrowings', borrowingsRouter);
 
-// Obsługa błędów
+// errors handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
