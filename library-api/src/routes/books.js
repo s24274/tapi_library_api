@@ -163,7 +163,7 @@ const Book = require('../models/Book');
  */
 router.get('/', async (req, res) => {
   try {
-    // Filtrowanie
+    // Filter
     const filter = {};
     if (req.query.title) {
       filter.title = { $regex: req.query.title, $options: 'i' }; // case-insensitive

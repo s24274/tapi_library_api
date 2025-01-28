@@ -35,7 +35,7 @@ const options = {
 
 const swaggerSpec = swaggerJsdoc(options);
 
-// Endpoint dla dokumentacji JSON
+// Endpoint for OpenAPI JSON
 app.get('/api/openapi.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(swaggerSpec);
@@ -109,7 +109,7 @@ app.use('/api/authors', authorsRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/borrowings', borrowingsRouter);
 
-// Możesz też dodać endpoint HTML z dokumentacją
+// HTML documentation
 app.get('/api/docs', (req, res) => {
   res.send(`
     <!DOCTYPE html>
