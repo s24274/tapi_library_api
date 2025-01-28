@@ -12,8 +12,37 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Swagger configuration
-const swaggerDocument = require('./openapi.json');
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Library API',
+      version: '1.0.0',
+      description: 'REST API for library management system',
+    },
+    servers: [
+      {
+        url: 'http://localhost:3000',
+        description: 'Development server',
+      },
+    ],
+  },
+  apis: [
+    path.join(__dirname, 'routes', '*.js'),
+    path.join(__dirname, 'models', '*.js')
+  ],
+};
+
+const swaggerSpec = swaggerJsdoc(options);
+
+// Endpoint dla dokumentacji JSON
+app.get('/api/openapi.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
+// Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/library')
@@ -64,7 +93,12 @@ app.get('/', (req, res) => {
       authors: { href: '/api/authors' },
       users: { href: '/api/users' },
       borrowings: { href: '/api/borrowings' },
-      graphql: { href: '/graphql' }
+      graphql: { href: '/graphql' },
+      documentation: {
+        openapi_json: { href: '/api/openapi.json' },
+        swagger_ui: { href: '/api-docs' },
+        api_docs: { href: '/api/docs' }
+      }
     }
   });
 });
@@ -74,6 +108,31 @@ app.use('/api/books', booksRouter);
 app.use('/api/authors', authorsRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/borrowings', borrowingsRouter);
+
+// Możesz też dodać endpoint HTML z dokumentacją
+app.get('/api/docs', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Library API Documentation</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
+        <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+      </head>
+      <body>
+        <div id="swagger-ui"></div>
+        <script>
+          window.onload = () => {
+            window.ui = SwaggerUIBundle({
+              url: '/api/openapi.json',
+              dom_id: '#swagger-ui',
+            });
+          };
+        </script>
+      </body>
+    </html>
+  `);
+});
 
 // errors handling
 app.use((err, req, res, next) => {

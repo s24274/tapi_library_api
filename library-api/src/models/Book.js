@@ -19,8 +19,16 @@ const bookSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['available', 'borrowed'],
-    default: 'available'
+    enum: ['AVAILABLE', 'BORROWED', 'LOST', 'MAINTENANCE'],
+    default: 'AVAILABLE'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
 }, {
   timestamps: true

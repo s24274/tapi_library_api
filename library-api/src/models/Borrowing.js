@@ -24,8 +24,16 @@ const borrowingSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['active', 'returned', 'overdue'],
-    default: 'active'
+    enum: ['ACTIVE', 'RETURNED', 'OVERDUE'],
+    default: 'ACTIVE'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
 }, {
   timestamps: true

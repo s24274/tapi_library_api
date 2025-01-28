@@ -13,14 +13,22 @@ const userSchema = new mongoose.Schema({
     trim: true,
     lowercase: true
   },
+  status: {
+    type: String,
+    enum: ['ACTIVE', 'SUSPENDED', 'BLOCKED'],
+    default: 'ACTIVE'
+  },
   membershipDate: {
     type: Date,
     default: Date.now
   },
-  status: {
-    type: String,
-    enum: ['active', 'suspended'],
-    default: 'active'
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
 }, {
   timestamps: true

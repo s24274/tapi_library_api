@@ -374,7 +374,15 @@
           },
           "status": {
             "type": "string",
-            "enum": ["available", "borrowed"]
+            "enum": ["AVAILABLE", "BORROWED", "LOST", "MAINTENANCE"]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -470,7 +478,19 @@
           "email": {
             "type": "string"
           },
+          "status": {
+            "type": "string",
+            "enum": ["ACTIVE", "SUSPENDED", "BLOCKED"]
+          },
           "membershipDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
             "type": "string",
             "format": "date-time"
           }
@@ -503,7 +523,15 @@
           },
           "status": {
             "type": "string",
-            "enum": ["active", "returned", "overdue"]
+            "enum": ["ACTIVE", "RETURNED", "OVERDUE"]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },

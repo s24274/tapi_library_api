@@ -20,6 +20,7 @@
   "dependencies": {
     "@apollo/server": "^4.11.3",
     "graph": "^0.2.0",
+    "graphql-custom-types": "^1.7.0",
     "mongoose": "^8.9.5",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"

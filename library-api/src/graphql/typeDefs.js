@@ -1,11 +1,78 @@
 const typeDefs = `#graphql
+  # Enumy dla stałych wartości
+  enum BookStatus {
+    AVAILABLE
+    BORROWED
+    LOST
+    MAINTENANCE
+  }
+
+  enum UserStatus {
+    ACTIVE
+    SUSPENDED
+    BLOCKED
+  }
+
+  enum BorrowingStatus {
+    ACTIVE
+    RETURNED
+    OVERDUE
+  }
+
+  enum SortOrder {
+    ASC
+    DESC
+  }
+
+  # Typy wejściowe
+  input BookInput {
+    title: String!
+    author: String!
+    isbn: String!
+  }
+
+  input BookUpdateInput {
+    title: String
+    author: String
+    isbn: String
+    status: BookStatus
+  }
+
+  input AuthorInput {
+    name: String!
+    nationality: String
+    birthYear: Int
+  }
+
+  input UserInput {
+    name: String!
+    email: String!
+  }
+
+  # Typ dla paginacji
+  type PaginatedBooks {
+    books: [Book]!
+    totalCount: Int!
+    hasNextPage: Boolean!
+  }
+
+  # Custom scalars
+  scalar DateTime
+  scalar EmailAddress
+  scalar ISBN
+  scalar URL
+  scalar JSON
+
+  # Główne typy
   type Book {
     _id: ID!
     title: String!
     author: String!
-    isbn: String!
-    status: String!
+    isbn: ISBN!
+    status: BookStatus!
     borrowings: [Borrowing]
+    createdAt: DateTime!
+    updatedAt: DateTime
   }
 
   type Author {
@@ -14,80 +81,68 @@ const typeDefs = `#graphql
     nationality: String
     birthYear: Int
     books: [Book]
+    createdAt: DateTime!
+    updatedAt: DateTime
   }
 
   type User {
     _id: ID!
     name: String!
-    email: String!
-    membershipDate: String!
-    status: String!
+    email: EmailAddress!
+    membershipDate: DateTime!
+    status: UserStatus!
     borrowings: [Borrowing]
+    createdAt: DateTime!
+    updatedAt: DateTime
   }
 
   type Borrowing {
     _id: ID!
     book: Book!
     user: User!
-    borrowDate: String!
-    dueDate: String!
-    returnDate: String
-    status: String!
+    borrowDate: DateTime!
+    dueDate: DateTime!
+    returnDate: DateTime
+    status: BorrowingStatus!
+    createdAt: DateTime!
+    updatedAt: DateTime
   }
 
   type Query {
     books(
       title: String
       author: String
-      status: String
+      status: BookStatus
       page: Int
       limit: Int
       sortBy: String
-    ): [Book]
+      sortOrder: SortOrder
+    ): PaginatedBooks!
     book(id: ID!): Book
-    authors: [Author]
+    authors: [Author]!
     author(id: ID!): Author
-    users: [User]
+    users: [User]!
     user(id: ID!): User
-    borrowings: [Borrowing]
+    borrowings: [Borrowing]!
     borrowing(id: ID!): Borrowing
   }
 
   type Mutation {
-    addBook(
-      title: String!
-      author: String!
-      isbn: String!
-    ): Book
+    addBook(input: BookInput!): Book!
+    updateBook(id: ID!, input: BookUpdateInput!): Book!
+    deleteBook(id: ID!): Boolean!
 
-    updateBook(
-      id: ID!
-      title: String
-      author: String
-      isbn: String
-    ): Book
-
-    deleteBook(id: ID!): Boolean
-
-    addAuthor(
-      name: String!
-      nationality: String
-      birthYear: Int
-    ): Author
-
-    addUser(
-      name: String!
-      email: String!
-    ): User
+    addAuthor(input: AuthorInput!): Author!
+    
+    addUser(input: UserInput!): User!
 
     createBorrowing(
       bookId: ID!
       userId: ID!
-    ): Borrowing
+      dueDate: DateTime
+    ): Borrowing!
 
-    returnBook(
-      borrowingId: ID!
-    ): Borrowing
+    returnBook(borrowingId: ID!): Borrowing!
   }
 `;
 

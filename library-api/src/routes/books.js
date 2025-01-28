@@ -16,20 +16,26 @@ const Book = require('../models/Book');
  *       properties:
  *         _id:
  *           type: string
- *           description: Auto-generated ID
+ *           description: Auto-generated MongoDB ID
  *         title:
  *           type: string
- *           description: Book title
+ *           description: Title of the book
  *         author:
  *           type: string
- *           description: Book author
+ *           description: Author of the book
  *         isbn:
  *           type: string
  *           description: ISBN number
  *         status:
  *           type: string
- *           enum: [available, borrowed]
- *           description: Book status
+ *           enum: [AVAILABLE, BORROWED, LOST, MAINTENANCE]
+ *           description: Current status of the book
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
  *     Author:
  *       type: object
  *       required:
@@ -107,28 +113,37 @@ const Book = require('../models/Book');
  * @swagger
  * /api/books:
  *   get:
- *     summary: Returns list of books
+ *     summary: Returns a list of books
+ *     tags: [Books]
  *     parameters:
  *       - in: query
  *         name: title
  *         schema:
  *           type: string
- *         description: Filter by title
+ *         description: Book title to filter by
  *       - in: query
  *         name: author
  *         schema:
  *           type: string
- *         description: Filter by author
+ *         description: Author name to filter by
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [AVAILABLE, BORROWED, LOST, MAINTENANCE]
+ *         description: Book status to filter by
  *       - in: query
  *         name: page
  *         schema:
  *           type: integer
+ *           default: 1
  *         description: Page number
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
- *         description: Items per page
+ *           default: 10
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: List of books
@@ -137,13 +152,14 @@ const Book = require('../models/Book');
  *             schema:
  *               type: object
  *               properties:
- *                 _embedded:
- *                   type: object
- *                   properties:
- *                     books:
- *                       type: array
- *                       items:
- *                         $ref: '#/components/schemas/Book'
+ *                 books:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Book'
+ *                 totalCount:
+ *                   type: integer
+ *                 currentPage:
+ *                   type: integer
  */
 router.get('/', async (req, res) => {
   try {
@@ -253,13 +269,15 @@ router.get('/', async (req, res) => {
  * @swagger
  * /api/books/{id}:
  *   get:
- *     summary: Get book by ID
+ *     summary: Get a book by id
+ *     tags: [Books]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: string
+ *         description: Book ID
  *     responses:
  *       200:
  *         description: Book details
@@ -298,6 +316,7 @@ router.get('/:id', async (req, res) => {
  * /api/books:
  *   post:
  *     summary: Create a new book
+ *     tags: [Books]
  *     requestBody:
  *       required: true
  *       content:
@@ -317,9 +336,11 @@ router.get('/:id', async (req, res) => {
  *                 type: string
  *     responses:
  *       201:
- *         description: Book created
- *       400:
- *         description: Invalid input
+ *         description: Book created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Book'
  */
 router.post('/', async (req, res) => {
   try {
