@@ -49,31 +49,52 @@ const Book = require('../models/Book');
 // GET /api/borrowings
 router.get('/', async (req, res) => {
   try {
+    console.log('Fetching borrowings...');
     const borrowings = await Borrowing.find()
       .populate('book')
-      .populate('user');
+      .populate('user')
+      .lean();
     
+    console.log('Found borrowings:', borrowings);
+    
+    if (!borrowings) {
+      return res.status(404).json({
+        error: 'Nie znaleziono wypożyczeń',
+        _links: {
+          self: { href: '/api/borrowings' }
+        }
+      });
+    }
+
     res.json({
       _embedded: {
         borrowings: borrowings.map(borrowing => ({
-          ...borrowing.toJSON(),
+          ...borrowing,
           _links: {
             self: { href: `/api/borrowings/${borrowing._id}` },
-            book: { href: `/api/books/${borrowing.book._id}` },
-            user: { href: `/api/users/${borrowing.user._id}` },
-            return: { 
+            book: borrowing.book ? { href: `/api/books/${borrowing.book._id}` } : null,
+            user: borrowing.user ? { href: `/api/users/${borrowing.user._id}` } : null,
+            return: borrowing.status === 'ACTIVE' ? { 
               href: `/api/borrowings/${borrowing._id}/return`,
               method: 'POST'
-            }
+            } : null
           }
         }))
       },
       _links: {
-        self: { href: '/api/borrowings' }
+        self: { href: '/api/borrowings' },
+        create: { href: '/api/borrowings', method: 'POST' }
       }
     });
   } catch (error) {
-    res.status(500).json({ error: 'Błąd serwera' });
+    console.error('Error fetching borrowings:', error);
+    res.status(500).json({ 
+      error: 'Błąd serwera',
+      message: error.message,
+      _links: {
+        self: { href: '/api/borrowings' }
+      }
+    });
   }
 });
 
