@@ -35,22 +35,23 @@ const options = {
 
 const swaggerSpec = swaggerJsdoc(options);
 
+// CORS configuration
+app.use(cors());
+app.use(express.json());
+
+// Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 // Endpoint for OpenAPI JSON
 app.get('/api/openapi.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(swaggerSpec);
 });
 
-// Swagger UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/library')
   .then(() => console.log('MongoDB Connected'))
   .catch(err => console.error('MongoDB connection error:', err));
-
-app.use(cors());
-app.use(express.json());
 
 // Routers for REST API
 const booksRouter = require('./routes/books');
@@ -66,7 +67,7 @@ const setupApollo = async () => {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    introspection: true,
+    introspection: true
   });
 
   await server.start();
@@ -109,31 +110,6 @@ app.use('/api/authors', authorsRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/borrowings', borrowingsRouter);
 
-// HTML documentation
-app.get('/api/docs', (req, res) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>Library API Documentation</title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
-        <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
-      </head>
-      <body>
-        <div id="swagger-ui"></div>
-        <script>
-          window.onload = () => {
-            window.ui = SwaggerUIBundle({
-              url: '/api/openapi.json',
-              dom_id: '#swagger-ui',
-            });
-          };
-        </script>
-      </body>
-    </html>
-  `);
-});
-
 // errors handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -148,5 +124,6 @@ app.use((err, req, res, next) => {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
   console.log(`REST API available at http://localhost:${port}`);
+  console.log(`Swagger UI available at http://localhost:${port}/api-docs`);
   console.log(`GraphQL Playground available at http://localhost:${port}/graphql`);
 }); 
